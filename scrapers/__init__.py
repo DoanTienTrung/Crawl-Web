@@ -1,9 +1,21 @@
-from .base_scraper import BaseScraper
-from .vnexpress_scraper import VnExpressScraper, VNEXPRESS_CATEGORIES
-from .cafef_scraper import CafeFScraper, CAFEF_CATEGORIES
+"""
+Scrapers package for news-scraper project.
+
+All scraper implementations are in multi_source_scraper.py
+"""
+
+from .multi_source_scraper import (
+    CafeFScraper,
+    VnExpressScraper,
+    VnEconomyScraper,
+    VOVScraper,
+    VietnametScraper,
+)
 
 __all__ = [
-    'BaseScraper', 
-    'VnExpressScraper', 'VNEXPRESS_CATEGORIES',
-    'CafeFScraper', 'CAFEF_CATEGORIES'
+    'CafeFScraper',
+    'VnExpressScraper',
+    'VnEconomyScraper',
+    'VOVScraper',
+    'VietnametScraper',
 ]

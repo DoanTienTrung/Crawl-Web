@@ -16,7 +16,7 @@ class Config:
     def DATABASE_URL(self):
         # Encode password để xử lý ký tự đặc biệt như @, #, %, etc.
         encoded_password = quote_plus(self.DB_PASSWORD)
-        return f"postgresql+psycopg://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        return f"postgresql+psycopg2://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
     
     # Selenium
     HEADLESS = os.getenv("HEADLESS", "true").lower() == "true"

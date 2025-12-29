@@ -70,115 +70,132 @@ class NewsScraperBase:
 
 class VnExpressScraper(NewsScraperBase):
     """
-    Scraper cho VnExpress.net
-    Tương tự hàm fetch_vnexpress_news trong Rust
+    Scraper cho VnExpress.net - crawl từ trang "Tin tức 24h"
     """
-    
+
     def __init__(self):
         super().__init__()
         self.source = "vnexpress.net"
         self.headers['Referer'] = 'https://vnexpress.net/'
-        self.categories = ["the-gioi", "kinh-doanh", "bat-dong-san", "phap-luat"]
-    
-    def fetch_news(self, max_pages: int = 5) -> List[Tuple]:
+
+    def fetch_news(self, max_pages: int = 3) -> List[Tuple]:
         """
-        Fetch tin tức từ VnExpress
-        
-        Returns:
-            List of tuples: (published_at, title, link, content, source, stock_related, sentiment_score, server_pushed)
+        Fetch tin tức từ VnExpress trang "Tin tức 24h"
+
+        Args:
+            max_pages: Số trang tối đa cần crawl (mặc định 3)
         """
         all_articles = []
-        
-        for category in self.categories:
-            print(f"\n📂 Category: {category} - multi_source_scraper.py:93")
-            
-            for page in range(1, max_pages + 1):
-                self.sleep()
-                
-                # Build URL
-                if page == 1:
-                    url = f"https://vnexpress.net/{category}"
-                else:
-                    url = f"https://vnexpress.net/{category}-p{page}"
-                
-                print(f"Fetching page {page}: {url} - multi_source_scraper.py:104")
-                
-                html = self.fetch_html(url)
-                if not html:
-                    continue
-                
-                # Parse listing page
-                soup = BeautifulSoup(html, 'html.parser')
-                articles = soup.select('article.item-news')
-                
-                for article in articles:
-                    try:
-                        # Extract title and link
-                        title_el = article.select_one('h3.title-news a')
-                        if not title_el:
-                            continue
-                        
-                        title = title_el.get_text(strip=True)
-                        link = title_el.get('href', '')
-                        
-                        if not title or not link:
-                            continue
-                        
-                        # Extract description
-                        desc_el = article.select_one('p.description a')
-                        description = desc_el.get_text(strip=True) if desc_el else ""
-                        
-                        # Fetch article detail
-                        self.sleep()
-                        article_data = self._fetch_article_detail(link, title, description, category)
-                        if article_data:
-                            all_articles.append(article_data)
-                            
-                    except Exception as e:
-                        print(f"✗ Error parsing article: {e} - multi_source_scraper.py:138")
+
+        print(f"\n📰 Crawling VnExpress.net - Tin tức 24h")
+
+        for page in range(1, max_pages + 1):
+            self.sleep()
+
+            # Build URL
+            if page == 1:
+                url = "https://vnexpress.net/tin-tuc-24h"
+            else:
+                url = f"https://vnexpress.net/tin-tuc-24h-p{page}"
+
+            print(f"\n📄 Page {page}/{max_pages}: {url}")
+
+            html = self.fetch_html(url)
+            if not html:
+                print(f"⚠ Failed to fetch page {page}, skipping")
+                continue
+
+            # Parse listing page
+            soup = BeautifulSoup(html, 'html.parser')
+            articles = soup.select('article.item-news')
+
+            if not articles:
+                print(f"⚠ No articles found on page {page}")
+                continue
+
+            print(f"Found {len(articles)} articles on page {page}")
+
+            for article in articles:
+                try:
+                    # Extract title and link
+                    title_el = article.select_one('h3.title-news a')
+                    if not title_el:
                         continue
-        
+
+                    title = title_el.get_text(strip=True)
+                    link = title_el.get('href', '')
+
+                    if not title or not link:
+                        continue
+
+                    # Extract description
+                    desc_el = article.select_one('p.description a')
+                    description = desc_el.get_text(strip=True) if desc_el else ""
+
+                    # Fetch article detail
+                    self.sleep()
+                    article_data = self._fetch_article_detail(link, title, description)
+                    if article_data:
+                        all_articles.append(article_data)
+
+                except Exception as e:
+                    print(f"✗ Error parsing article: {e}")
+                    continue
+
+        print(f"\n✓ Total articles collected: {len(all_articles)}")
         return all_articles
     
-    def _fetch_article_detail(self, link: str, title: str, description: str, category: str) -> Optional[Tuple]:
+    def _fetch_article_detail(self, link: str, title: str, description: str) -> Optional[Tuple]:
         """Fetch chi tiết một bài báo"""
         html = self.fetch_html(link)
         if not html:
             return None
-        
+
         soup = BeautifulSoup(html, 'html.parser')
-        
+
         # Extract date
-        # Format: "Thứ bảy, 24/8/2025, 09:00 (GMT+7)"
+        # Format: "Thứ hai, 29/12/2025, 15:50 (GMT+7)"
         date_el = soup.select_one('span.date')
         published_at = 0
-        
+
         if date_el:
             date_text = date_el.get_text(strip=True)
             parts = date_text.split(',')
             if len(parts) >= 3:
-                date_part = parts[1].strip()  # "24/8/2025"
-                time_part = parts[2].strip().split(' ')[0]  # "09:00"
+                date_part = parts[1].strip()  # "29/12/2025"
+                time_part = parts[2].strip().split(' ')[0]  # "15:50"
                 datetime_str = f"{date_part} {time_part}"
                 published_at = self.parse_date_to_timestamp(datetime_str, "%d/%m/%Y %H:%M")
-        
+
         # Extract content
         content_els = soup.select('article.fck_detail p.Normal')
         content = ' '.join([p.get_text(strip=True) for p in content_els if p.get_text(strip=True)])
-        
+
         if not content:
             content = description
-        
+
+        # Extract category từ breadcrumb
+        # VD: <ul.breadcrumb><li><a href="/suc-khoe">Sức khỏe</a></li>...
+        category = "Tin tức 24h"  # Default
+
+        breadcrumb_links = soup.select('ul.breadcrumb li a, .breadcrumb a')
+        if breadcrumb_links:
+            # Lấy item đầu tiên làm category chính
+            category_el = breadcrumb_links[0]
+            category_text = category_el.get_text(strip=True)
+            if category_text:
+                category = category_text
+
         return (
-            published_at,           # published_at (bigint)
-            title,                  # title
-            link,                   # link
-            content,                # content
-            self.source,            # source
-            "NA",                   # stock_related
-            "NA",                   # sentiment_score
-            False,                  # server_pushed
-            category,               # category (extra)
+            published_at,
+            title,
+            link,
+            content,
+            self.source,
+            "NA",
+            "NA",
+            False,
+            category,
         )
 
 
@@ -287,101 +304,179 @@ class VnEconomyScraper(NewsScraperBase):
 
 class VOVScraper(NewsScraperBase):
     """
-    Scraper cho VOV.vn
-    Tương tự hàm fetch_vov_news trong Rust
+    Scraper cho VOV.vn - crawl từ trang "Tin mới cập nhật"
     """
-    
+
     def __init__(self):
         super().__init__()
         self.source = "vov.vn"
         self.headers['Referer'] = 'https://vov.vn/'
-        self.categories = ["the-gioi", "thi-truong", "kinh-te", "chinh-tri", "doanh-nghiep"]
         self.delay = 3  # VOV cần delay lâu hơn
-    
-    def fetch_news(self) -> List[Tuple]:
-        """Fetch tin tức từ VOV"""
+
+    def fetch_news(self, max_pages: int = 3) -> List[Tuple]:
+        """
+        Fetch tin tức từ VOV trang "Tin mới cập nhật"
+
+        Args:
+            max_pages: Số trang tối đa cần crawl (mặc định 3)
+        """
         all_articles = []
-        
-        for category in self.categories:
-            print(f"\n📂 Category: {category} - multi_source_scraper.py:306")
+
+        print(f"\n📰 Crawling VOV.vn - Tin mới cập nhật")
+
+        # Pagination: page 0, page 1, page 2, ...
+        for page in range(max_pages):
+            if page == 0:
+                url = "https://vov.vn/tin-moi-cap-nhat"
+            else:
+                url = f"https://vov.vn/tin-moi-cap-nhat?page={page}"
+
+            print(f"\n  📄 Page {page + 1}/{max_pages}: {url}")
             self.sleep()
-            
-            url = f"https://vov.vn/{category}"
-            print(f"Fetching: {url} - multi_source_scraper.py:310")
-            
+
             html = self.fetch_html(url)
             if not html:
-                continue
-            
+                print(f"  ⚠ Failed to fetch page {page}, stopping")
+                break
+
+            # Check for anti-bot redirect (VOV uses multiple levels of JavaScript redirects)
+            max_redirects = 5
+            redirect_count = 0
+            import re as re_module
+            from urllib.parse import unquote
+
+            while ('Attention Required' in html or 'window.location.href' in html) and redirect_count < max_redirects:
+                redirect_count += 1
+                print(f"  ⚠ Anti-bot detected (level {redirect_count}), extracting redirect URL...")
+
+                # Extract redirect URL from JavaScript
+                match = re_module.search(r'window\.location\.href\s*=\s*["\']([^"\']+)["\']', html)
+                if match:
+                    redirect_url = match.group(1)
+                    redirect_url = unquote(redirect_url)
+                    print(f"  → Redirecting to: {redirect_url[:80]}...")
+
+                    # Fetch the redirect URL
+                    self.sleep()
+                    html = self.fetch_html(redirect_url)
+                    if not html:
+                        print(f"  ⚠ Failed to fetch redirect URL, stopping")
+                        break
+                    print(f"  DEBUG: After redirect {redirect_count}, HTML length: {len(html)}")
+                else:
+                    print(f"  ⚠ Could not extract redirect URL, stopping")
+                    break
+
+            # If we still have anti-bot page after max redirects, stop
+            if redirect_count >= max_redirects and 'Attention Required' in html:
+                print(f"  ⚠ Max redirects ({max_redirects}) reached, still getting anti-bot page. Stopping.")
+                break
+
             soup = BeautifulSoup(html, 'html.parser')
-            
+
             # Select taxonomy-content divs
             content_divs = soup.select('div.taxonomy-content')
-            
+
+            # Debug: Show what we found
+            print(f"  DEBUG: Found {len(content_divs)} div.taxonomy-content")
+
+            if not content_divs:
+                print(f"  ⚠ No articles found on page {page}, stopping")
+                # Debug: Try alternative selector
+                alt_divs = soup.select('.card')
+                print(f"  DEBUG: Alternative .card selector found {len(alt_divs)} elements")
+                break
+
+            print(f"  Found {len(content_divs)} articles on page {page}")
+
             for div in content_divs:
                 try:
                     # Extract title
                     title_el = div.select_one('h5.media-title') or div.select_one('h3.card-title')
                     title = title_el.get_text(strip=True) if title_el else ''
-                    
+
                     # Extract link
                     link_el = div.select_one('a.vovvn-title')
                     href = link_el.get('href', '') if link_el else ''
                     link = href if href.startswith('http') else f"https://vov.vn{href}"
-                    
+
                     # Extract description
                     desc_el = div.select_one('p.mt-2')
                     description = desc_el.get_text(strip=True) if desc_el else ''
-                    
+
                     if not title or not link:
                         continue
-                    
+
                     # Fetch article detail
                     self.sleep()
-                    article_data = self._fetch_article_detail(link, title, description, category)
+                    article_data = self._fetch_article_detail(link, title, description)
                     if article_data:
                         all_articles.append(article_data)
-                        
+
                 except Exception as e:
-                    print(f"✗ Error parsing article: {e} - multi_source_scraper.py:346")
+                    print(f"  ✗ Error parsing article: {e}")
                     continue
-        
+
+            # Check pagination để xem có trang tiếp theo không
+            pagination = soup.select_one('ul.pagination')
+            if not pagination:
+                print(f"  ⚠ No pagination found, stopping")
+                break
+
+        print(f"\n  ✓ Total articles collected: {len(all_articles)}")
         return all_articles
     
-    def _fetch_article_detail(self, link: str, title: str, description: str, category: str) -> Optional[Tuple]:
+    def _fetch_article_detail(self, link: str, title: str, description: str) -> Optional[Tuple]:
         """Fetch chi tiết một bài báo"""
         html = self.fetch_html(link)
         if not html:
             return None
-        
+
         soup = BeautifulSoup(html, 'html.parser')
-        
+
         # Extract date
-        # Format: "Thứ Ba, 22:35, 26/08/2025"
-        date_el = soup.select_one('.article-date .col-md-4')
+        # Format mới: "Thứ Hai, 16:54, 29/12/2025" trong div.col-md-4.mb-2
+        # Format cũ: "Thứ Ba, 22:35, 26/08/2025" trong .article-date .col-md-4
         published_at = int(datetime.now().timestamp())  # Default to now
-        
+
+        # Thử selector mới trước
+        date_el = soup.select_one('div.col-md-4.mb-2') or soup.select_one('.article-date .col-md-4')
+
         if date_el:
             date_text = date_el.get_text(strip=True)
+            # Format: "Thứ Hai, 16:54, 29/12/2025"
             parts = [p.strip() for p in date_text.split(',')]
             if len(parts) >= 3:
-                time_part = parts[1]  # "22:35"
-                date_part = parts[2]  # "26/08/2025"
+                time_part = parts[1]  # "16:54"
+                date_part = parts[2]  # "29/12/2025"
                 datetime_str = f"{date_part} {time_part}"
                 parsed_ts = self.parse_date_to_timestamp(datetime_str, "%d/%m/%Y %H:%M")
                 if parsed_ts > 0:
                     published_at = parsed_ts
-        
+
         # Extract content
         content_el = soup.select_one('div.row.article-content div.col div.text-long')
         content = description
-        
+
         if content_el:
             paragraphs = content_el.select('p')
             content_text = ' '.join([p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)])
             if content_text:
                 content = content_text
-        
+
+        # Extract category từ breadcrumb
+        category = "Tin tức"  # Default
+
+        # Tìm từ breadcrumb: li.breadcrumb-item a
+        breadcrumb_links = soup.select('li.breadcrumb-item a, .breadcrumb a')
+        if breadcrumb_links:
+            # Thường item đầu tiên là category chính
+            # VD: <li class="breadcrumb-item"><a href="/chinh-tri">CHÍNH TRỊ</a></li>
+            category_el = breadcrumb_links[0]
+            category_text = category_el.get_text(strip=True)
+            if category_text and category_text.lower() not in ['trang chủ', 'home', 'vov']:
+                category = category_text
+
         return (
             published_at,
             title,
@@ -497,21 +592,21 @@ class VietnametScraper(NewsScraperBase):
 
             if page_numbers:
                 max_page_num = max(page_numbers)
-                print(f"Pagination detected: pages 1-{max_page_num} (current: page {page + 1}) - multi_source_scraper.py:495")
+                print(f"Pagination detected: pages 1{max_page_num} (current: page {page + 1}) - multi_source_scraper.py:500")
 
                 # Current page is 0-indexed, but display is 1-indexed
                 # If we're at the last page, stop
                 if page + 1 >= max_page_num:
-                    print(f"Reached the last page ({page + 1}/{max_page_num}) - multi_source_scraper.py:500")
+                    print(f"Reached the last page ({page + 1}/{max_page_num}) - multi_source_scraper.py:505")
                     break
             else:
-                print(f"No page numbers found in pagination, stopping - multi_source_scraper.py:503")
+                print(f"No page numbers found in pagination, stopping - multi_source_scraper.py:508")
                 break
 
             # Move to next page
             page += 1
 
-        print(f"\n  ✓ Total articles collected: {len(all_articles)} from {page + 1} page(s) - multi_source_scraper.py:498")
+        print(f"\n  ✓ Total articles collected: {len(all_articles)} from {page + 1} page(s) - multi_source_scraper.py:514")
         return all_articles
     
     def _fetch_article_detail(self, link: str, title: str) -> Optional[Tuple]:
@@ -550,11 +645,39 @@ class VietnametScraper(NewsScraperBase):
         # Extract content
         content_el = soup.select_one('div.maincontent') or soup.select_one('div.article-content')
         content = ""
-        
+
         if content_el:
             paragraphs = content_el.select('p')
             content = ' '.join([p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)])
-        
+
+        # Extract category từ breadcrumb
+        category = "Tin tức"  # Default
+
+        # Thử tìm từ breadcrumb - thường category là item thứ 2 (sau "Trang chủ")
+        breadcrumb_links = soup.select('ul.breadcrumb li a, .breadcrumb a, .bread-crumb a')
+        if len(breadcrumb_links) >= 2:
+            # Item đầu tiên thường là "Trang chủ", item thứ 2 là category
+            category_el = breadcrumb_links[1]
+            category_text = category_el.get_text(strip=True)
+            if category_text and category_text.lower() not in ['trang chủ', 'home', 'vietnamnet']:
+                category = category_text
+            # Nếu không có text, thử lấy từ title attribute
+            elif not category_text:
+                category = category_el.get('title', category).strip()
+
+        # Fallback: Tìm link category gần khu vực date (nếu breadcrumb không có)
+        if category == "Tin tức":
+            # Tìm trong parent của bread-crumb-detail__time
+            date_parent = soup.select_one('div.bread-crumb-detail__time')
+            if date_parent and date_parent.parent:
+                nearby_links = date_parent.parent.select('a[title]')
+                for link_el in nearby_links:
+                    href = link_el.get('href', '')
+                    # Category links thường có href ngắn như "/thoi-su", "/kinh-doanh"
+                    if href.startswith('/') and href.count('/') == 1 and len(href) < 30:
+                        category = link_el.get_text(strip=True) or link_el.get('title', category)
+                        break
+
         return (
             published_at,
             title,
@@ -564,7 +687,7 @@ class VietnametScraper(NewsScraperBase):
             "NA",
             "NA",
             False,
-            "kinh-doanh",
+            category,
         )
 
 
@@ -577,19 +700,18 @@ class CafeFScraper(NewsScraperBase):
         super().__init__()
         self.source = "cafef.vn"
         self.headers['Referer'] = 'https://cafef.vn/'
-    
+
     def fetch_news(self, max_pages: int = 4, max_articles_per_page: int = 20) -> List[Tuple]:
         """
-        Fetch tin tức từ CafeF Đọc Nhanh
+        Fetch tin tức từ CafeF từ trang /doc-nhanh
 
         Args:
-            max_pages: Số trang tối đa cần crawl (mặc định 4)
+            max_pages: Số trang tối đa (mặc định 4)
             max_articles_per_page: Số bài tối đa mỗi trang (mặc định 20)
         """
         all_articles = []
-        seen_urls = set()  # Track URLs across all pages
+        seen_urls = {}  # Track URLs và page number: {full_url: page_number}
 
-        # Loop through pages
         for page in range(1, max_pages + 1):
             # Build pagination URL
             if page == 1:
@@ -597,13 +719,13 @@ class CafeFScraper(NewsScraperBase):
             else:
                 url = f"https://cafef.vn/doc-nhanh/trang-{page}.chn"
 
-            print(f"\n  📄 Page {page}/{max_pages}: {url} - multi_source_scraper.py:584")
+            print(f"\n📄 Page {page}/{max_pages}: {url}")
             self.sleep()
 
             html = self.fetch_html(url)
             if not html:
-                print(f"⚠ Failed to fetch page {page}, stopping pagination - multi_source_scraper.py:589")
-                break
+                print(f"⚠ Failed to fetch page {page}, skipping")
+                continue
 
             soup = BeautifulSoup(html, 'html.parser')
 
@@ -614,32 +736,34 @@ class CafeFScraper(NewsScraperBase):
 
             for link in links:
                 href = link.get('href', '')
-                if href and href not in seen_urls:
+                if href:
                     full_url = href if href.startswith('http') else f"https://cafef.vn{href}"
-                    # Exclude pagination và category pages
-                    if '/doc-nhanh' not in full_url and '/trang-' not in full_url:
-                        seen_urls.add(href)
+                    # Exclude pagination pages
+                    if '/trang-' in full_url:
+                        continue
+                    if full_url not in seen_urls:
+                        seen_urls[full_url] = page
                         article_urls.append(full_url)
 
             if not article_urls:
-                print(f"⚠ No articles found on page {page}, stopping pagination - multi_source_scraper.py:609")
-                break
+                print(f"⚠ No new articles on page {page}")
+                continue
 
-            print(f"Found {len(article_urls)} article URLs on page {page} - multi_source_scraper.py:612")
+            print(f"Found {len(article_urls)} new article URLs on page {page}")
 
             # Limit articles per page
             article_urls = article_urls[:max_articles_per_page]
 
             # Fetch article details
             for i, article_url in enumerate(article_urls, 1):
-                print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:60]}... - multi_source_scraper.py:619")
+                print(f"  [{i}/{len(article_urls)}] Fetching: {article_url[:60]}...")
                 self.sleep()
 
                 article_data = self._fetch_article_detail(article_url)
                 if article_data:
                     all_articles.append(article_data)
 
-        print(f"\n  ✓ Total articles collected: {len(all_articles)} from {page} page(s) - multi_source_scraper.py:626")
+        print(f"\n✓ Total articles collected: {len(all_articles)}")
         return all_articles
     
     def _fetch_article_detail(self, link: str) -> Optional[Tuple]:
@@ -657,24 +781,15 @@ class CafeFScraper(NewsScraperBase):
         if not title:
             return None
         
-        # Extract date
-        # CafeF format: "25-12-2025 - 21:07 PM" hoặc "25/12/2025 20:50"
+        # Extract date từ span.pdate[data-role="publishdate"]
+        # Format: "29-12-2025 - 16:16 PM"
         published_at = 0
-        
-        # Tìm trong toàn bộ HTML để lấy date chính xác hơn
-        # Format mới của CafeF: dd-mm-yyyy - HH:MM PM/AM
-        date_match = re.search(r'(\d{1,2})-(\d{1,2})-(\d{4})\s*-?\s*(\d{1,2}):(\d{2})', html)
-        if date_match:
-            day, month, year, hour, minute = date_match.groups()
-            try:
-                dt = datetime(int(year), int(month), int(day), int(hour), int(minute))
-                published_at = int(dt.timestamp())
-            except:
-                pass
-        
-        # Fallback: Format cũ dd/mm/yyyy HH:MM
-        if published_at == 0:
-            date_match = re.search(r'(\d{1,2})/(\d{1,2})/(\d{4})\s*(\d{1,2}):(\d{2})', html)
+
+        date_el = soup.select_one('span.pdate[data-role="publishdate"]')
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+            # Parse: "29-12-2025 - 16:16 PM" -> datetime
+            date_match = re.search(r'(\d{1,2})-(\d{1,2})-(\d{4})\s*-\s*(\d{1,2}):(\d{2})', date_text)
             if date_match:
                 day, month, year, hour, minute = date_match.groups()
                 try:
@@ -695,12 +810,15 @@ class CafeFScraper(NewsScraperBase):
                 if content:
                     break
         
-        # Extract category từ breadcrumb hoặc link trong header
-        category = ""
-        cat_el = soup.select_one('a[href*=".chn"][title]')
-        if cat_el:
-            category = cat_el.get('title', '') or cat_el.get_text(strip=True)
-        
+        # Extract category từ a[data-role="cate-name"]
+        category = "ĐỌC NHANH"  # Default
+
+        category_el = soup.select_one('a[data-role="cate-name"]')
+        if category_el:
+            category = category_el.get_text(strip=True)
+            if not category:  # Nếu text rỗng, thử lấy từ title attribute
+                category = category_el.get('title', 'ĐỌC NHANH').strip()
+
         return (
             published_at,
             title,

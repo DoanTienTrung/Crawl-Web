@@ -22,7 +22,11 @@ Usage:
 
 import sys
 import os
+import io
 from datetime import datetime
+
+# Fix Unicode encoding for Windows console
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -56,9 +60,9 @@ def scrape_vnexpress(save_to_db: bool = True, export_csv: bool = True) -> list:
     print("\n" + "="*60)
     print("🟢 VNEXPRESS.NET SCRAPER")
     print("="*60)
-    
+
     scraper = VnExpressScraper()
-    articles = scraper.fetch_news(max_pages=2)
+    articles = scraper.fetch_news(max_pages=3)  # Crawl 3 trang
     
     _save_and_export(articles, "vnexpress", save_to_db, export_csv)
     return articles
@@ -82,10 +86,10 @@ def scrape_vov(save_to_db: bool = True, export_csv: bool = True) -> list:
     print("\n" + "="*60)
     print("🔴 VOV.VN SCRAPER")
     print("="*60)
-    
+
     scraper = VOVScraper()
-    articles = scraper.fetch_news()
-    
+    articles = scraper.fetch_news(max_pages=3)  # Crawl 3 trang
+
     _save_and_export(articles, "vov", save_to_db, export_csv)
     return articles
 

@@ -77,8 +77,8 @@ python main.py
 ```bash
 python main.py cafef        # Chỉ CafeF
 python main.py vnexpress    # Chỉ VnExpress
-python main.py vneconomy    # Chỉ VnEconomy
-python main.py vov          # Chỉ VOV
+python main.py vneconomy    # Chỉ VnEconomy status: processing
+python main.py vov          # Chỉ VOV       status: processing
 python main.py vietnamnet   # Chỉ Vietnamnet
 ```
 
