@@ -18,3 +18,7 @@ venv/
 
 # Exported data
 exports/
+
+# Logs
+logs/
+*.log

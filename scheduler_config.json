@@ -1,0 +1,72 @@
+{
+  "database": {
+    "user": "postgres",
+    "password": "admin123@",
+    "database": "news_db",
+    "host": "127.0.0.1",
+    "port": 5432
+  },
+  "jobs": [
+    {
+      "id": "scrape_all_news_hourly",
+      "name": "Scrape tất cả nguồn tin mỗi giờ",
+      "function": "scrape_all",
+      "enabled": true,
+      "schedule": {
+        "type": "interval",
+        "minutes": 30
+      },
+      "description": "Chạy scrape_all() mỗi 1 giờ để thu thập tin từ tất cả nguồn"
+    },
+    {
+      "id": "scrape_cafef_30min",
+      "name": "Scrape CafeF mỗi 30 phút",
+      "function": "scrape_cafef",
+      "enabled": false,
+      "schedule": {
+        "type": "interval",
+        "minutes": 30
+      },
+      "description": "Scrape riêng CafeF (hiện tắt - bật bằng cách đổi enabled=true)"
+    },
+    {
+      "id": "scrape_vnexpress_morning",
+      "name": "Scrape VnExpress buổi sáng",
+      "function": "scrape_vnexpress",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_vietstock_every_2hours",
+      "name": "Scrape VietStock mỗi 2 giờ",
+      "function": "scrape_vietstock",
+      "enabled": false,
+      "schedule": {
+        "type": "interval",
+        "hours": 2
+      },
+      "description": "Scrape VietStock mỗi 2 giờ (giờ giao dịch)"
+    },
+    {
+      "id": "scrape_dantri_every_15min",
+      "name": "Scrape Dân trí mỗi 15 phút",
+      "function": "scrape_dantri",
+      "enabled": false,
+      "schedule": {
+        "type": "interval",
+        "minutes": 15
+      },
+      "description": "Scrape Dân trí RSS mỗi 15 phút"
+    }
+  ],
+  "timezone": "Asia/Ho_Chi_Minh",
+  "log_file": "logs/news_scheduler.log",
+  "log_level": "INFO",
+  "run_on_startup": true
+}

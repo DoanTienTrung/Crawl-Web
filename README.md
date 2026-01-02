@@ -157,6 +157,136 @@ news-scraper/
 | Compression | flate2, brotli | gzip, brotli |
 | Browser automation | thirtyfour | selenium (optional) |
 
+## 🤖 Scheduler - Tự động lập lịch scraping
+
+### Cách sử dụng Scheduler
+
+Scheduler giúp tự động chạy các scraper functions theo lịch đã định sẵn.
+
+#### 1. Cài đặt thêm APScheduler
+
+```bash
+pip install -r requirements.txt
+```
+
+#### 2. Cấu hình lịch chạy
+
+Chỉnh sửa file `scheduler_config.json`:
+
+```json
+{
+  "jobs": [
+    {
+      "id": "scrape_all_news_hourly",
+      "name": "Scrape tất cả nguồn tin mỗi giờ",
+      "function": "scrape_all",
+      "enabled": true,
+      "schedule": {
+        "type": "interval",
+        "hours": 1
+      },
+      "description": "Chạy scrape_all() mỗi 1 giờ"
+    }
+  ],
+  "timezone": "Asia/Ho_Chi_Minh",
+  "log_file": "logs/news_scheduler.log",
+  "log_level": "INFO"
+}
+```
+
+#### 3. Chạy Scheduler
+
+```bash
+python scheduler.py
+```
+
+Output:
+```
+[2026-01-02 10:00:00] INFO - 🚀 Scheduler started successfully!
+[2026-01-02 10:00:00] INFO - ⏰ Timezone: Asia/Ho_Chi_Minh
+[2026-01-02 10:00:00] INFO - 📋 Total active jobs: 1
+[2026-01-02 10:00:00] INFO -   🕐 Scrape tất cả nguồn tin mỗi giờ
+[2026-01-02 10:00:00] INFO -      Next run: 2026-01-02 11:00:00
+```
+
+#### 4. Dừng Scheduler
+
+Nhấn `Ctrl+C` để dừng gracefully.
+
+### Các loại Schedule
+
+#### Interval Schedule (chạy mỗi X thời gian)
+
+```json
+{
+  "type": "interval",
+  "minutes": 30    // Mỗi 30 phút
+}
+
+{
+  "type": "interval",
+  "hours": 2      // Mỗi 2 giờ
+}
+```
+
+#### Cron Schedule (chạy theo lịch cụ thể)
+
+```json
+{
+  "type": "cron",
+  "hour": "8",
+  "minute": "0",
+  "day_of_week": "mon-fri"    // 8:00 sáng, thứ 2-6
+}
+
+{
+  "type": "cron",
+  "minute": "*/15"    // Mỗi 15 phút
+}
+```
+
+### Các Scraper Functions có sẵn
+
+- `scrape_all` - Scrape tất cả nguồn
+- `scrape_cafef` - CafeF
+- `scrape_vnexpress` - VnExpress
+- `scrape_vneconomy` - VnEconomy
+- `scrape_vov` - VOV
+- `scrape_vietnamnet` - Vietnamnet
+- `scrape_dantri` - Dân trí
+- `scrape_thanhnien` - Thanh Niên
+- `scrape_tuoitre` - Tuổi Trẻ
+- `scrape_laodong` - Lao Động
+- `scrape_nld` - Người Lao Động
+- `scrape_vietstock` - VietStock
+- `scrape_antt` - An ninh Thủ đô
+- `scrape_cna` - Channel NewsAsia
+- `scrape_qdnd` - Quân đội Nhân dân
+- `scrape_kinhte` - Kinh tế Ngoại thương
+- `scrape_thoibaonganhang` - Thời báo Ngân hàng
+- `scrape_taichinhdoanhnghiep` - Tài chính Doanh nghiệp
+- `scrape_baochinhphu` - Báo Chính phủ
+
+### Logs
+
+Xem logs tại: `logs/news_scheduler.log`
+
+```bash
+tail -f logs/news_scheduler.log    # Xem logs real-time
+```
+
+### Bật/Tắt Jobs
+
+Đặt `"enabled": false` trong config để tắt job:
+
+```json
+{
+  "id": "my_job",
+  "enabled": false,
+  ...
+}
+```
+
 ## Lưu ý
 
 1. **Rate limiting**: Tool có delay 2-3 giây giữa các request

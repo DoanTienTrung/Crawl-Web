@@ -1,0 +1,29 @@
+vnexpress: done
+vov: done
+cafef: done
+vietnamnet: done
+cafeland: done - còn các quảng cáo
+dantri: done
+thanhnien: done
+tuoitre: done
+vietstock: done (sử dụng Selenium)  
+nld: done
+laodong: done 
+antt: done (fixed URL conversion và selectors)
+channelnewsasia: done
+kinhtengoaithuong: done
+thoibaonganhang: done
+taichinhdoanhnghiep: done
+baochinhphu: done
+tinnhanhchungkhoan: done
+vneconomy: done
+nguoiquansat: done
+thoibaotaichinh: done
+
+
+agromonitor: not yet
+qdnd: not yet
+coin68
+vietnamfinance
+xaydungchinhsach
+
