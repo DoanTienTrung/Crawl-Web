@@ -19,11 +19,39 @@ tinnhanhchungkhoan: done
 vneconomy: done
 nguoiquansat: done
 thoibaotaichinh: done
+coin68: done
+vietnamfinance: done
+xaydungchinhsach: done
+qdnd: done
 
 
 agromonitor: not yet
-qdnd: not yet
-coin68
-vietnamfinance
-xaydungchinhsach
 
+
+
+
+antt: done 
+baochinhphu
+cafef
+cafeland
+channelnewsasia
+coin68
+dantri
+kinhtengoaithuong
+laodong
+nguoiquansat
+nld
+qdnd
+taichinhdoanhnghiep
+thanhnien
+thoibaonganhang
+thoibaotaichinhvietnam
+tinnhanhchungkhoan
+tuoitre
+vietnamfinance
+vietnamnet
+vietstock
+vneconomy
+vnexpress
+vov
+xaydungchinhsach

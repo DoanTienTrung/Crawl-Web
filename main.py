@@ -65,9 +65,72 @@ from scrapers.multi_source_scraper import (
     TinNhanhChungKhoanScraper,
     NguoiQuanSatScraper,
     ThoiBaoTaiChinhScraper,
+    Coin68Scraper,
+    VietnamFinanceScraper,
+    XaydungChinhsachScraper,
 )
 from database.models import db
 from utils.exporters import export_to_csv, export_to_json
+
+def scrape_xaydungchinhsach(save_to_db: bool = True, export_csv: bool = True) -> list:
+    """Scrape Xây dựng chính sách - Cổng thông tin Chính phủ"""
+    print("\n" + "="*60)
+    print("🏛️  XÂY DỰNG CHÍNH SÁCH - main.py")
+    print("="*60)
+    
+    scraper = XaydungChinhsachScraper()
+    articles = scraper.fetch_news(max_articles=10)
+    
+    if articles:
+        _save_and_export(articles, "xaydungchinhsach", save_to_db, export_csv)
+    else:
+        print("⚠ Không lấy được dữ liệu từ Xây dựng chính sách.")
+        
+    return articles
+
+def scrape_vietnamfinance(save_to_db: bool = True, export_csv: bool = True) -> list:
+    """Scrape VietnamFinance - Tin tức tài chính, đầu tư (Trang chủ)"""
+    print("\n" + "="*60)
+    print("📰  VIETNAMFINANCE (VIETNAMFINANCE.VN) - main.py")
+    print("="*60)
+    
+    # 1. Khởi tạo scraper cho VietnamFinance
+    scraper = VietnamFinanceScraper()
+    
+    # 2. Quét các bài viết từ khu vực .articles (bao gồm Swiper và danh sách bên dưới)
+    # Tăng lên 15 bài để lấy hết các tin quan trọng ở trang chủ
+    articles = scraper.fetch_news(max_articles=15)
+    
+    if articles:
+        # 3. Sử dụng hàm bổ trợ để lưu vào SQLite và xuất CSV
+        # Lưu ý: "vietnamfinance" sẽ là tên file CSV và định danh trong log
+        _save_and_export(articles, "vietnamfinance", save_to_db, export_csv)
+    else:
+        # Trường hợp không lấy được bài nào hoặc tất cả bài đều đã trùng trong DB
+        print("⚠ Không tìm thấy bài viết mới nào từ VietnamFinance (hoặc bài đã tồn tại).")
+        
+    return articles
+
+def scrape_coin68(save_to_db: bool = True, export_csv: bool = True) -> list:
+    """Scrape Coin68 - Tin tức thị trường Tiền mã hóa (Mục Hot News)"""
+    print("\n" + "="*60)
+    print("🪙  COIN68 (COIN68.COM) - main.py")
+    print("="*60)
+    
+    # Khởi tạo scraper cho Coin68
+    scraper = Coin68Scraper()
+    
+    # Quét 10 bài viết nóng nhất (Hot News) từ trang chủ
+    # Bạn có thể tăng max_articles nếu muốn lấy nhiều hơn
+    articles = scraper.fetch_news(max_articles=10)
+    
+    if articles:
+        # Sử dụng hàm bổ trợ để lưu vào SQLite và xuất CSV
+        _save_and_export(articles, "coin68", save_to_db, export_csv)
+    else:
+        print("⚠ Không tìm thấy bài viết mới nào từ Coin68.")
+        
+    return articles
 
 def scrape_nguoiquansat(save_to_db: bool = True, export_csv: bool = True) -> list:
     """Scrape Người Quan Sát với cấu trúc mới"""
@@ -524,6 +587,10 @@ def scrape_all():
     all_articles.extend(scrape_tinnhanhchungkhoan(save_to_db=True, export_csv=False))
     all_articles.extend(scrape_nguoiquansat(save_to_db=True, export_csv=False))
     all_articles.extend(scrape_thoibaotaichinh(save_to_db=True, export_csv=False))
+    all_articles.extend(scrape_coin68(save_to_db=True, export_csv=False))
+    all_articles.extend(scrape_vietnamfinance(save_to_db=True, export_csv=False))
+    all_articles.extend(scrape_xaydungchinhsach(save_to_db=True, export_csv=False))
+    
 
     # Export all to CSV
     print("\n" + "="*60)
@@ -637,15 +704,24 @@ if __name__ == "__main__":
         elif mode == 'cafeland':
             db.create_tables()
             scrape_cafeland()
+        elif mode == 'vietnamfinance':
+            db.create_tables()
+            scrape_vietnamfinance()
         elif mode == 'vnexpress':
             db.create_tables()
             scrape_vnexpress()
         elif mode == 'thoibaonganhang':
             db.create_tables()
             scrape_thoibaonganhang()
+        elif mode == 'coin68':
+            db.create_tables()
+            scrape_coin68()
         elif mode == 'vneconomy':
             db.create_tables()
             scrape_vneconomy()
+        elif mode == 'xaydungchinhsach':
+            db.create_tables()
+            scrape_xaydungchinhsach()
         elif mode == 'nguoiquansat':
             db.create_tables()
             scrape_nguoiquansat()

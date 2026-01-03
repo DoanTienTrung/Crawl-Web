@@ -26,6 +26,9 @@ from .multi_source_scraper import (
     TinNhanhChungKhoanScraper,
     NguoiQuanSatScraper,
     ThoiBaoTaiChinhScraper,
+    Coin68Scraper,
+    VietnamFinanceScraper,
+    XaydungChinhsachScraper,
 )
 
 __all__ = [
@@ -52,4 +55,7 @@ __all__ = [
     'TinNhanhChungKhoanScraper',
     'NguoiQuanSatScraper',
     'ThoiBaoTaiChinhScraper',
+    'Coin68Scraper',
+    'VietnamFinanceScraper',
+    'XaydungChinhsachScraper',
 ]

@@ -2380,155 +2380,6 @@ class CNARSSScraper(NewsScraperBase):
 
 
 
-class QDNDRSSScraper(NewsScraperBase):
-    def __init__(self):
-        super().__init__()
-        self.source = "qdnd.vn"
-
-        self.headers.update({
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/120.0.0.0 Safari/537.36",
-            "Accept-Language": "vi-VN,vi;q=0.9",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Referer": "https://www.qdnd.vn/",
-            "Connection": "keep-alive"
-        })
-
-    # ===============================
-    # MAIN FETCH
-    # ===============================
-    def fetch_news(self, max_articles: int = 10) -> List[Tuple]:
-        url = "https://www.qdnd.vn/"
-        print(f"📡 Đang kết nối tới: {url}")
-
-        html = self.fetch_html(url)
-        if not html:
-            return []
-
-        soup = BeautifulSoup(html, "html.parser")
-
-        article_urls = self._extract_hot_news_urls(soup, max_articles)
-        print(f"✓ Tìm thấy {len(article_urls)} bài NỔI BẬT.")
-
-        results = []
-        for i, link in enumerate(article_urls, 1):
-            print(f"[{i}/{len(article_urls)}] Fetching: {link.split('/')[-1][:50]}...")
-            self.sleep()
-            data = self._fetch_article_detail(link)
-            if data:
-                results.append(data)
-
-        return results
-
-    # ===============================
-    # EXTRACT HOT NEWS
-    # ===============================
-    def _extract_hot_news_urls(self, soup: BeautifulSoup, max_articles: int) -> List[str]:
-        hot_block = soup.select_one("div.hotnews-block")
-        if not hot_block:
-            print("⚠️ Không tìm thấy hotnews-block")
-            return []
-
-        seen = set()
-        urls = []
-
-        for a in hot_block.select("article.item a[href]"):
-            href = a.get("href", "").strip()
-
-            # Chỉ lấy link bài viết QDND
-            if not re.search(r"-\d+\.html$", href):
-                continue
-
-            if not href.startswith("http"):
-                href = f"https://www.qdnd.vn{href}"
-
-            if href in seen:
-                continue
-
-            seen.add(href)
-            urls.append(href)
-
-            if len(urls) >= max_articles:
-                break
-
-        return urls
-
-    # ===============================
-    # FETCH ARTICLE DETAIL
-    # ===============================
-    def _fetch_article_detail(self, link: str) -> Optional[Tuple]:
-        html = self.fetch_html(link)
-        if not html:
-            return None
-
-        soup = BeautifulSoup(html, "html.parser")
-
-        # 1. TITLE
-        title_el = soup.select_one("h1")
-        if not title_el:
-            return None
-        title = title_el.get_text(strip=True)
-
-        # 2. PUBLISHED TIME
-        published_at = int(datetime.now().timestamp())
-        time_el = soup.select_one("span.time")
-        if time_el:
-            m = re.search(r"(\d{2}/\d{2}/\d{4})", time_el.get_text())
-            if m:
-                try:
-                    dt = datetime.strptime(m.group(1), "%d/%m/%Y")
-                    published_at = int(dt.timestamp())
-                except:
-                    pass
-
-        # 3. CATEGORY
-        category = "THỜI SỰ"
-        breadcrumb = soup.select(".breadcrumb a, .category a")
-        if len(breadcrumb) >= 2:
-            category = breadcrumb[1].get_text(strip=True).upper()
-
-        # 4. CONTENT
-        content = ""
-        body = (
-            soup.select_one('div[itemprop="articleBody"]')
-            or soup.select_one("div.post-content")
-        )
-
-        if body:
-            content_box = copy.copy(body)
-
-            for noise in content_box.select(
-                "table, style, script, input, .post-related, .list-newslive"
-            ):
-                noise.decompose()
-
-            paragraphs = content_box.find_all("p")
-            if paragraphs:
-                content = " ".join(
-                    p.get_text(strip=True)
-                    for p in paragraphs
-                    if len(p.get_text(strip=True)) > 5
-                )
-            else:
-                content = content_box.get_text(" ", strip=True)
-
-        if len(content) < 50:
-            return None
-
-        return (
-            published_at,
-            title,
-            link,
-            content,
-            self.source,
-            "N/A",
-            "NA",
-            False,
-            category
-        )
-
-
 
 class KinhTeNgoaiThuongScraper(NewsScraperBase):
     def __init__(self):
@@ -3360,3 +3211,399 @@ class ThoiBaoTaiChinhScraper(NewsScraperBase):
             False,
             category,
         )
+
+
+class Coin68Scraper(NewsScraperBase):
+    def __init__(self):
+        super().__init__()
+        self.source = "coin68.com"
+        self.base_url = "https://coin68.com"
+
+    def fetch_news(self, max_articles: int = 10) -> List[Tuple]:
+        all_articles = []
+        url = self.base_url
+        
+        print(f"\n📡 Đang quét cấu trúc Hot News Coin68...")
+        html = self.fetch_html(url)
+        if not html:
+            return []
+
+        soup = BeautifulSoup(html, 'html.parser')
+        
+        # 1. Tìm tất cả các khối tin dựa trên class 'css-19idom' bạn cung cấp
+        items = soup.find_all('div', class_='css-19idom')
+        
+        article_urls = []
+        for item in items:
+            # 2. Tìm thẻ a chứa tiêu đề (thẻ a nằm trong div css-112x203 như mẫu của bạn)
+            link_el = item.select_one('div.css-112x203 a')
+            if link_el and link_el.get('href'):
+                href = link_el.get('href')
+                full_url = f"{self.base_url}{href}" if href.startswith('/') else href
+                
+                if full_url not in article_urls:
+                    article_urls.append(full_url)
+            
+            if len(article_urls) >= max_articles:
+                break
+
+        print(f"✓ Tìm thấy {len(article_urls)} bài viết từ giao diện Hot News.")
+
+        # 3. Lấy chi tiết từng bài
+        for i, article_url in enumerate(article_urls, 1):
+            print(f"[{i}/{len(article_urls)}] Đang cào: {article_url}")
+            self.sleep()
+            data = self._fetch_article_detail(article_url)
+            if data:
+                all_articles.append(data)
+                
+        return all_articles
+
+    def _fetch_article_detail(self, link: str) -> Optional[Tuple]:
+        html_text = self.fetch_html(link)
+        if not html_text: return None
+        soup = BeautifulSoup(html_text, 'html.parser')
+
+        # 1. Lấy Title - Dùng selector ổn định (h1 hoặc MuiTypography-h2)
+        title = ""
+        title_el = soup.find('h1')
+        if title_el:
+            title = title_el.get_text(strip=True)
+
+        # 2. Lấy Category (Dựa trên breadcrumbs)
+        category = "CRYPTO"
+        # Tìm breadcrumb chứa link /article/ (đó là category)
+        category_link = soup.select_one('.MuiBreadcrumbs-li a[href*="/article/"]')
+        if category_link:
+            span = category_link.find('span')
+            if span:
+                category = span.get_text(strip=True).upper()
+
+        # 3. Lấy Published At - Tìm thẻ span chứa ngày
+        published_at = int(datetime.now().timestamp())
+        # Thử tìm span chứa pattern ngày DD/MM/YYYY
+        for span in soup.find_all('span'):
+            text = span.get_text(strip=True)
+            if '/' in text and len(text) == 10:  # Format: DD/MM/YYYY
+                try:
+                    dt = datetime.strptime(text, "%d/%m/%Y")
+                    published_at = int(dt.timestamp())
+                    break
+                except:
+                    continue
+
+        # 4. Lấy Content - Dùng div#content (không cần class cụ thể)
+        paragraphs = []
+        content_div = soup.find('div', id='content')
+
+        if content_div:
+            # Chỉ lấy text từ các thẻ p, bỏ qua các thẻ script/iframe/ads
+            for p in content_div.find_all('p', recursive=True):
+                # Loại bỏ các đoạn text chứa "Ảnh:", "Nguồn:", "Có thể bạn quan tâm"
+                txt = p.get_text(strip=True)
+                if len(txt) > 30 and not any(x in txt for x in ["Ảnh:", "Nguồn:", "tổng hợp"]):
+                    paragraphs.append(txt)
+
+        content = "\n\n".join(paragraphs)
+
+        # Kiểm tra điều kiện cuối cùng để tránh lưu bài rỗng
+        if not title or not content:
+            return None
+
+        return (published_at, title, link, content, self.source, "NA", "NA", False, category)
+
+
+class VietnamFinanceScraper(NewsScraperBase):
+    def __init__(self):
+        super().__init__()
+        self.source = "vietnamfinance.vn"
+        self.base_url = "https://vietnamfinance.vn"
+
+    def fetch_news(self, max_articles: int = 15) -> List[Tuple]:
+        all_articles = []
+        html = self.fetch_html(self.base_url)
+        if not html: return []
+
+        soup = BeautifulSoup(html, 'html.parser')
+        article_links = []
+
+        # 1. Lấy link từ khu vực articles (bao gồm cả Swiper và Danh sách bên dưới)
+        container = soup.select_one('.section-secondary__left .articles')
+        if container:
+            # Tìm tất cả thẻ a có class title hoặc nằm trong h3.article__title
+            # Cách bóc tách này khớp với cả 2 mẫu HTML bạn gửi
+            links = container.find_all('a', href=True)
+            for a in links:
+                href = a['href']
+                # Chỉ lấy link bài viết (thường có đuôi .html và chứa mã d+số)
+                if '.html' in href and href != self.base_url:
+                    full_url = href if href.startswith('http') else self.base_url + href
+                    if full_url not in article_links:
+                        article_links.append(full_url)
+                
+                if len(article_links) >= max_articles:
+                    break
+
+        print(f"✓ Tìm thấy {len(article_links)} bài viết từ trang chủ.")
+
+        for i, link in enumerate(article_links, 1):
+            print(f"[{i}/{len(article_links)}] Đang cào: {link}")
+            self.sleep()
+            data = self._fetch_article_detail(link)
+            if data:
+                all_articles.append(data)
+        
+        return all_articles
+
+    def _fetch_article_detail(self, link: str) -> Optional[Tuple]:
+        html = self.fetch_html(link)
+        if not html: return None
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # 1. Title (Khớp với h1.detail-title)
+        title_el = soup.select_one('h1.detail-title')
+        title = title_el.get_text(strip=True) if title_el else ""
+
+        # 2. Category (Khớp với li.breadcrumb-item a)
+        category = "FINANCE"
+        cate_el = soup.select_one('.breadcrumb-item a.breadcrumb-link')
+        if cate_el:
+            category = cate_el.get_text(strip=True).upper()
+
+        # 3. Published At (Khớp với thẻ span chứa định dạng dd/mm/yyyy hh:mm)
+        published_at = int(datetime.now().timestamp())
+        # Tìm thẻ span có nội dung chứa ngày tháng
+        date_el = soup.find('span', string=re.compile(r'\d{2}/\d{2}/\d{4}'))
+        if date_el:
+            date_str = re.search(r'\d{2}/\d{2}/\d{4}', date_el.get_text()).group()
+            try:
+                dt = datetime.strptime(date_str, "%d/%m/%Y")
+                published_at = int(dt.timestamp())
+            except: pass
+
+        # 4. Content (Khớp với #news_detail #explus-editor)
+        paragraphs = []
+        # Lấy Sapo trước (vì nó chứa tóm tắt quan trọng)
+        sapo_el = soup.select_one('.detail-sapo')
+        if sapo_el:
+            paragraphs.append(sapo_el.get_text(strip=True))
+
+        # Lấy các đoạn trong nội dung chính
+        content_div = soup.select_one('#news_detail #explus-editor')
+        if content_div:
+            # Duyệt qua các thẻ p, bỏ qua các thẻ ads/script bên trong
+            for p in content_div.find_all('p', recursive=False):
+                txt = p.get_text(strip=True)
+                if len(txt) > 20: # Bỏ qua các dòng quá ngắn
+                    paragraphs.append(txt)
+        
+        content = "\n\n".join(paragraphs)
+
+        if not title or len(content) < 100:
+            return None
+
+        return (published_at, title, link, content, self.source, "NA", "NA", False, category)
+
+
+class XaydungChinhsachScraper(NewsScraperBase):
+    def __init__(self):
+        super().__init__()
+        self.source = "xaydungchinhsach.chinhphu.vn"
+        self.base_url = "https://xaydungchinhsach.chinhphu.vn"
+
+    def fetch_news(self, max_articles: int = 10) -> List[Tuple]:
+        all_articles = []
+        # Trang chủ của site này chính là danh sách tin nổi bật/mới nhất
+        html = self.fetch_html(self.base_url)
+        if not html: return []
+
+        soup = BeautifulSoup(html, 'html.parser')
+        article_links = []
+
+        # Tìm tất cả các link bài viết (thường nằm trong các khối tin)
+        # Site này sử dụng các thẻ a có thuộc tính title rất đầy đủ
+        links = soup.select('a[title]')
+        for a in links:
+            href = a.get('href')
+            # Lọc các link là bài viết:
+            # - Phải có .htm
+            # - Phải có mã ID số (ví dụ: 119260101192109677.htm)
+            # - Loại bỏ category pages (không có số hoặc quá ngắn)
+            if href and '.htm' in href and not href.startswith('javascript'):
+                # Kiểm tra href có chứa chuỗi số dài (article ID)
+                # Article URLs thường có format: /abc-xyz-119260101192109677.htm
+                if re.search(r'\d{10,}', href):  # Có ít nhất 10 chữ số liên tiếp = article ID
+                    full_url = href if href.startswith('http') else self.base_url + href
+                    if full_url not in article_links:
+                        article_links.append(full_url)
+
+            if len(article_links) >= max_articles:
+                break
+
+        print(f"✓ Tìm thấy {len(article_links)} bài viết từ Xây dựng chính sách.")
+
+        for i, link in enumerate(article_links, 1):
+            print(f"[{i}/{len(article_links)}] Đang cào: {link}")
+            self.sleep()
+            data = self._fetch_article_detail(link)
+            if data:
+                all_articles.append(data)
+
+        return all_articles
+
+    def _fetch_article_detail(self, link: str) -> Optional[Tuple]:
+        html = self.fetch_html(link)
+        if not html: return None
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # 1. Title - Dùng data-role hoặc class chính xác
+        title = ""
+        title_el = soup.select_one('h1[data-role="title"]') or soup.select_one('h1.title') or soup.find('h1')
+        if title_el:
+            title = title_el.get_text(strip=True)
+
+        # 2. Category - Từ breadcrumbs
+        category = "POLICY"
+        cat_el = soup.select_one('.list-cate a[data-role="cate-name"]') or soup.select_one('.list-cate a.item-cate')
+        if cat_el:
+            category = cat_el.get_text(strip=True).upper()
+
+        # 3. Published At - Dùng data-role="publishdate"
+        published_at = int(datetime.now().timestamp())
+        date_el = soup.select_one('p[data-role="publishdate"]') or soup.select_one('p.days')
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+            # Format: "03/01/2026 08:56" hoặc "03/01/2026"
+            match = re.search(r'(\d{2}/\d{2}/\d{4})', date_text)
+            if match:
+                try:
+                    dt = datetime.strptime(match.group(1), "%d/%m/%Y")
+                    published_at = int(dt.timestamp())
+                except: pass
+
+        # 4. Content - Lấy từ sapo + detail-content
+        paragraphs = []
+
+        # Lấy sapo (lead/summary)
+        sapo_el = soup.select_one('h2[data-role="sapo"]') or soup.select_one('.detail-sapo')
+        if sapo_el:
+            sapo_text = sapo_el.get_text(strip=True)
+            if len(sapo_text) > 20:
+                paragraphs.append(sapo_text)
+
+        # Lấy content chính
+        content_area = soup.select_one('div[data-role="content"]') or soup.select_one('.detail-content.afcbc-body')
+        if content_area:
+            # Lấy các thẻ p, h2, h3, h4 (bỏ qua figure, script, style)
+            for elem in content_area.find_all(['p', 'h2', 'h3', 'h4']):
+                txt = elem.get_text(strip=True)
+                # Bỏ qua các đoạn quá ngắn, chú thích ảnh, link download
+                if len(txt) > 30 and not any(skip in txt.lower() for skip in ['nguồn:', 'tham khảo thêm', 'toàn văn:', '---']):
+                    paragraphs.append(txt)
+
+        content = "\n\n".join(paragraphs)
+
+        if not title or not content: return None
+
+        return (published_at, title, link, content, self.source, "NA", "NA", False, category)
+
+class QDNDRSSScraper(NewsScraperBase):
+    def __init__(self):
+        super().__init__()
+        self.source = "qdnd.vn"
+        self.rss_url = "https://www.qdnd.vn/rss/cate/tin-tuc-moi-nhat.rss"
+
+    def fetch_news(self, max_articles: int = 10) -> List[Tuple]:
+        all_articles = []
+
+        print(f"\n📡 Đang đọc RSS từ: {self.rss_url}")
+
+        # 1. Fetch RSS với requests (vì feedparser trực tiếp bị chặn bởi redirect)
+        try:
+            import requests
+            response = requests.get(self.rss_url, headers=self.headers, timeout=15)
+            response.raise_for_status()
+
+            # Parse RSS content bằng feedparser
+            feed = feedparser.parse(response.text)
+        except Exception as e:
+            print(f"⚠ Lỗi khi fetch RSS: {e}")
+            return []
+
+        if not feed.entries:
+            print("⚠ Không thể lấy dữ liệu từ RSS.")
+            return []
+
+        # 2. Lấy danh sách các link bài viết
+        article_links = []
+        for entry in feed.entries:
+            link = entry.link
+            if link not in article_links:
+                article_links.append(link)
+            if len(article_links) >= max_articles:
+                break
+
+        print(f"✓ Tìm thấy {len(article_links)} bài viết mới từ RSS.")
+
+        # 3. Duyệt từng bài để cào nội dung chi tiết
+        for i, link in enumerate(article_links, 1):
+            print(f"[{i}/{len(article_links)}] Đang cào: {link}")
+            self.sleep()
+            data = self._fetch_article_detail(link)
+            if data:
+                all_articles.append(data)
+
+        return all_articles
+
+    def _fetch_article_detail(self, link: str) -> Optional[Tuple]:
+        html = self.fetch_html(link)
+        if not html: return None
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # 1. Title: Báo QDND dùng class post-title
+        title_el = soup.select_one('h1.post-title')
+        title = title_el.get_text(strip=True) if title_el else ""
+
+        # 2. Category: Lấy từ breadcrumb (link đầu tiên)
+        category = "MILITARY"
+        # Tìm link đầu tiên trong breadcrumb với rel="v:url" và property="v:title"
+        cate_el = soup.find('a', rel='v:url', property='v:title')
+        if cate_el:
+            category = cate_el.get_text(strip=True).upper()
+
+        # 3. Published At: Lấy từ class post-date (Ví dụ: Chủ nhật, 04/01/2026)
+        published_at = int(datetime.now().timestamp())
+        date_el = soup.select_one('.post-date')
+        if date_el:
+            date_match = re.search(r'(\d{2}/\d{2}/\d{4})', date_el.get_text())
+            if date_match:
+                try:
+                    dt = datetime.strptime(date_match.group(1), "%d/%m/%Y")
+                    published_at = int(dt.timestamp())
+                except: pass
+
+        # 4. Content: Báo QDND dùng class post-content
+        paragraphs = []
+        # Lấy Sapo (Tóm tắt)
+        sapo_el = soup.select_one('.post-summary')
+        if sapo_el:
+            paragraphs.append(sapo_el.get_text(strip=True))
+
+        # Lấy nội dung chính
+        content_area = soup.select_one('.post-content')
+        if content_area:
+            # Loại bỏ các div quảng cáo, video, ảnh liên quan nếu có
+            for r in content_area.select('.related-post, .video-wrapper, .author-info'):
+                r.decompose()
+            
+            for p in content_area.find_all('p'):
+                txt = p.get_text(strip=True)
+                if len(txt) > 30:
+                    paragraphs.append(txt)
+        
+        content = "\n\n".join(paragraphs)
+
+        if not title or len(content) < 100:
+            return None
+
+        return (published_at, title, link, content, self.source, "NA", "NA", False, category)
