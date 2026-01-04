@@ -1,24 +1,29 @@
 """
-News Scrapers Package
+News Scrapers Package - Organized by scraper type
 """
 
-from .multi_source_scraper import (
-    NewsScraperBase,
-    VnExpressScraper,
+from scrapers.base import NewsScraperBase
+
+# Import from RSS scrapers
+from scrapers.rss import (
     VnEconomyScraper,
+    DanTriRSSScraper,
+    ThanhNienRSSScraper,
+    TuoiTreRSSScraper,
+    ANTTRSSScraper,
+    CNARSSScraper,
+    QDNDRSSScraper,
+)
+
+# Import from HTML scrapers
+from scrapers.html import (
+    VnExpressScraper,
     VOVScraper,
     VietnametScraper,
     CafelandScraper,
     CafeFScraper,
-    DanTriRSSScraper,
-    ThanhNienRSSScraper,
-    TuoiTreRSSScraper,
-    VietStockScraper,
     NLDScraper,
     LaoDongScraper,
-    ANTTRSSScraper,
-    CNARSSScraper,
-    QDNDRSSScraper,
     KinhTeNgoaiThuongScraper,
     ThoiBaoNganHangScraper,
     TaiChinhDoanhNghiepScraper,
@@ -31,23 +36,29 @@ from .multi_source_scraper import (
     XaydungChinhsachScraper,
 )
 
+# Import from Selenium scrapers
+from scrapers.selenium import (
+    VietStockScraper,
+)
+
 __all__ = [
     'NewsScraperBase',
-    'VnExpressScraper',
+    # RSS Scrapers
     'VnEconomyScraper',
+    'DanTriRSSScraper',
+    'ThanhNienRSSScraper',
+    'TuoiTreRSSScraper',
+    'ANTTRSSScraper',
+    'CNARSSScraper',
+    'QDNDRSSScraper',
+    # HTML Scrapers
+    'VnExpressScraper',
     'VOVScraper',
     'VietnametScraper',
     'CafelandScraper',
     'CafeFScraper',
-    'DanTriRSSScraper',
-    'ThanhNienRSSScraper',
-    'TuoiTreRSSScraper',
-    'VietStockScraper',
     'NLDScraper',
     'LaoDongScraper',
-    'ANTTRSSScraper',
-    'CNARSSScraper',
-    'QDNDRSSScraper',
     'KinhTeNgoaiThuongScraper',
     'ThoiBaoNganHangScraper',
     'TaiChinhDoanhNghiepScraper',
@@ -58,4 +69,40 @@ __all__ = [
     'Coin68Scraper',
     'VietnamFinanceScraper',
     'XaydungChinhsachScraper',
+    # Selenium Scrapers
+    'VietStockScraper',
+    # Registry
+    'SCRAPERS',
 ]
+
+# Registry - để dễ sử dụng
+SCRAPERS = {
+    # RSS Scrapers
+    'vneconomy': VnEconomyScraper,
+    'dantri': DanTriRSSScraper,
+    'thanhnien': ThanhNienRSSScraper,
+    'tuoitre': TuoiTreRSSScraper,
+    'antt': ANTTRSSScraper,
+    'cna': CNARSSScraper,
+    'qdnd': QDNDRSSScraper,
+    # HTML Scrapers
+    'vnexpress': VnExpressScraper,
+    'vov': VOVScraper,
+    'vietnamnet': VietnametScraper,
+    'cafeland': CafelandScraper,
+    'cafef': CafeFScraper,
+    'nld': NLDScraper,
+    'laodong': LaoDongScraper,
+    'kinhtengaithuong': KinhTeNgoaiThuongScraper,
+    'thoibaonganhang': ThoiBaoNganHangScraper,
+    'taichinhdoanhnghiep': TaiChinhDoanhNghiepScraper,
+    'baochinhphu': BaoChinhPhuScraper,
+    'tinnhanhchungkhoan': TinNhanhChungKhoanScraper,
+    'nguoiquansat': NguoiQuanSatScraper,
+    'thoibaotaichinh': ThoiBaoTaiChinhScraper,
+    'coin68': Coin68Scraper,
+    'vietnamfinance': VietnamFinanceScraper,
+    'xaydungchinhsach': XaydungChinhsachScraper,
+    # Selenium Scrapers
+    'vietstock': VietStockScraper,
+}

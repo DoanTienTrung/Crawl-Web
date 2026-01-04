@@ -27,7 +27,9 @@ qdnd: done
 
 agromonitor: not yet
 
-
+Kiểm tra lại các trang báo:
+Refactor lại code:
+Đọc hiểu source code
 
 
 antt: done 
