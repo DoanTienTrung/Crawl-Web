@@ -108,7 +108,7 @@ class LaoDongScraper(NewsScraperBase):
 
         # Fetch article details
         for i, article_url in enumerate(article_links, 1):
-            print(f"[{i}/{len(article_links)}] Fetching: {article_url[:60]}...")
+            print(f"[{i}/{len(article_links)}] Fetching: {article_url[:60]}...", flush=True)
             self.sleep()
 
             article_data = self._fetch_article_detail(article_url)

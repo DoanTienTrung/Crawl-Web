@@ -48,7 +48,7 @@ class ThoiBaoTaiChinhScraper(NewsScraperBase):
         # Crawl chi tiết từng bài
         results = []
         for i, link in enumerate(article_urls, 1):
-            print(f"[{i}/{len(article_urls)}] Fetching: {link}")
+            print(f"[{i}/{len(article_urls)}] Fetching: {link}", flush=True)
             self.sleep()
             data = self._fetch_article_detail(link)
             if data:

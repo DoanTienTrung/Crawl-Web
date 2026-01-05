@@ -43,7 +43,7 @@ class KinhTeNgoaiThuongScraper(NewsScraperBase):
             # Lọc: Phải thuộc domain, không phải trang chủ, không phải link rác
             if "kinhtengoaithuong.vn" in href and href != "https://kinhtengoaithuong.vn/":
                 # Loại bỏ các trang chức năng
-                if not any(x in href for x in ['/category/', '/tag/', '/author/', '/contact/', '/gioi-thieu/']):
+                if not any(x in href for x in ['/category/', '/tag/', '/author/', '/contact/', '/gioi-thieu/', '/c/']):
                     if href not in seen_urls:
                         seen_urls.add(href)
                         article_urls.append(href)
@@ -55,7 +55,7 @@ class KinhTeNgoaiThuongScraper(NewsScraperBase):
                 href = a['href']
                 # Link bài viết thường có độ sâu path > 3 (ví dụ domain.vn/ten-bai-viet/)
                 if "kinhtengoaithuong.vn" in href and len(href.strip('/').split('/')) >= 3:
-                     if href not in seen_urls and not any(x in href for x in ['/category/', '/tag/']):
+                     if href not in seen_urls and not any(x in href for x in ['/category/', '/tag/', '/c/']):
                         seen_urls.add(href)
                         article_urls.append(href)
 
@@ -63,7 +63,7 @@ class KinhTeNgoaiThuongScraper(NewsScraperBase):
         print(f"✓ Tìm thấy {len(article_urls)} bài viết từ trang chủ.")
 
         for i, article_url in enumerate(article_urls, 1):
-            print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:50]}...")
+            print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:50]}...", flush=True)
             self.sleep()
             article_data = self._fetch_article_detail(article_url)
             if article_data:

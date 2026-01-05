@@ -191,6 +191,8 @@ class VietnametScraper(NewsScraperBase):
                     if href.startswith('/') and href.count('/') == 1 and len(href) < 30:
                         category = link_el.get_text(strip=True) or link_el.get('title', category)
                         break
+        # 👉 In hoa category
+        category = category.upper()
 
         return (
             published_at,

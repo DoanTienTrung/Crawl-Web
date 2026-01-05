@@ -14,7 +14,7 @@ class NguoiQuanSatScraper(NewsScraperBase):
         self.source = "nguoiquansat.vn"
         self.headers["Referer"] = "https://nguoiquansat.vn/"
 
-    def fetch_news(self, max_articles: int = 10) -> List[Tuple]:
+    def fetch_news(self, max_articles: int = 20) -> List[Tuple]:
         url = "https://nguoiquansat.vn/tin-moi-nhat"
         print(f"\n📡 Crawling: {url}")
 
@@ -54,7 +54,7 @@ class NguoiQuanSatScraper(NewsScraperBase):
 
         results = []
         for i, link in enumerate(article_urls, 1):
-            print(f"[{i}/{len(article_urls)}] Fetching: {link}")
+            print(f"[{i}/{len(article_urls)}] Fetching: {link}", flush=True)
             self.sleep()
             data = self._fetch_article_detail(link)
             if data:

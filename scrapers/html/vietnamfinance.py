@@ -39,7 +39,7 @@ class VietnamFinanceScraper(NewsScraperBase):
         print(f"✓ Tìm thấy {len(article_links)} bài viết từ trang chủ.")
 
         for i, link in enumerate(article_links, 1):
-            print(f"[{i}/{len(article_links)}] Đang cào: {link}")
+            print(f"[{i}/{len(article_links)}] Đang cào: {link}", flush=True)
             self.sleep()
             data = self._fetch_article_detail(link)
             if data:

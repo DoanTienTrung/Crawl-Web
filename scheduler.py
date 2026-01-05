@@ -41,6 +41,11 @@ from main import (
     scrape_taichinhdoanhnghiep,
     scrape_baochinhphu,
     scrape_tinnhanhchungkhoan,
+    scrape_xaydungchinhsach,
+    scrape_vietnamfinance,
+    scrape_coin68,
+    scrape_nguoiquansat,
+    scrape_thoibaotaichinh,
 )
 
 
@@ -73,6 +78,11 @@ class NewsScraperScheduler:
         'scrape_taichinhdoanhnghiep': scrape_taichinhdoanhnghiep,
         'scrape_baochinhphu': scrape_baochinhphu,
         'scrape_tinnhanhchungkhoan': scrape_tinnhanhchungkhoan,
+        'scrape_xaydungchinhsach': scrape_xaydungchinhsach,
+        'scrape_vietnamfinance': scrape_vietnamfinance,
+        'scrape_coin68': scrape_coin68,
+        'scrape_nguoiquansat': scrape_nguoiquansat,
+        'scrape_thoibaotaichinh': scrape_thoibaotaichinh,
     }
 
     def __init__(self, config_file='scheduler_config.json'):
@@ -82,15 +92,15 @@ class NewsScraperScheduler:
         Args:
             config_file: Đường dẫn đến file JSON config
         """
-        self.config_file = config_file
+        self.config_file = config_file 
         self.config = None
         self.scheduler = None
         self.logger = None
 
         # Load config và setup
-        self.load_config()
-        self.setup_logging()
-        self.setup_scheduler()
+        self.load_config()  # Đọc Json config
+        self.setup_logging()  # Setup log file
+        self.setup_scheduler() # Tạo APScheduler instance
 
     def load_config(self):
         """Đọc file JSON config"""
@@ -232,10 +242,16 @@ class NewsScraperScheduler:
             article_count = len(result) if result else 0
 
             self.logger.info(
-                f"✅ Completed job: {job_name} | "
+                f"\n✅ Completed job: {job_name} | "
                 f"Articles: {article_count} | "
                 f"Duration: {duration:.2f}s"
             )
+
+            # Lấy thông tin lần chạy tiếp theo
+            job = self.scheduler.get_job(job_id)
+            if job and job.next_run_time:
+                next_run = job.next_run_time.strftime('%Y-%m-%d %H:%M:%S')
+                self.logger.info(f"⏰ Next run: {next_run}")
 
         except Exception as e:
             end_time = datetime.now()

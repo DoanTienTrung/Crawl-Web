@@ -18,7 +18,7 @@ class TinNhanhChungKhoanScraper(NewsScraperBase):
             'Referer': 'https://www.tinnhanhchungkhoan.vn/',
         })
 
-    def fetch_news(self, max_articles: int = 10) -> List[Tuple]:
+    def fetch_news(self, max_articles: int = 15) -> List[Tuple]:
         """Lấy bài viết mới nhất từ trang chủ"""
         all_articles = []
         url = "https://www.tinnhanhchungkhoan.vn/"
@@ -67,7 +67,7 @@ class TinNhanhChungKhoanScraper(NewsScraperBase):
 
         # Fetch chi tiết từng bài
         for i, article_url in enumerate(article_urls, 1):
-            print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:70]}...")
+            print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:70]}...", flush=True)
             self.sleep()
             article_data = self._fetch_article_detail(article_url)
             if article_data:

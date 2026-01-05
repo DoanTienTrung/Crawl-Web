@@ -95,7 +95,7 @@ class Database:
     def create_tables(self):
         """Tạo tất cả các tables"""
         Base.metadata.create_all(self.engine)
-        print("✓ Database tables created successfully! - models.py:98")
+        print("✓ Database tables created successfully!")
     
     def get_session(self):
         """Lấy database session"""
@@ -119,7 +119,7 @@ class Database:
             # Kiểm tra xem title đã tồn tại chưa (UNIQUE constraint)
             existing = session.query(News).filter_by(title=title).first()
             if existing:
-                print(f"⏭ Skipped (exists): {title[:50]}... - models.py:122")
+                print(f"⏭ Skipped (exists): {title[:50]}...")
                 return False
             
             # Insert new record
@@ -135,12 +135,12 @@ class Database:
             )
             session.add(news)
             session.commit()
-            print(f"✓ Inserted: {title[:50]}... - models.py:138")
+            print(f"✓ Inserted: {title[:50]}...")
             return True
             
         except Exception as e:
             session.rollback()
-            print(f"✗ Error inserting news: {e} - models.py:143")
+            print(f"✗ Error inserting news: {e}")
             return False
         finally:
             session.close()
@@ -159,7 +159,7 @@ class Database:
             
             existing = session.query(News).filter_by(title=title).first()
             if existing:
-                print(f"⏭ Skipped (exists): {title[:50]}... - models.py:162")
+                print(f"⏭ Skipped (exists): {title[:50]}...")
                 return False
             
             news = News(
@@ -175,12 +175,12 @@ class Database:
             )
             session.add(news)
             session.commit()
-            print(f"✓ Inserted: {title[:50]}... - models.py:178")
+            print(f"✓ Inserted: {title[:50]}...")
             return True
             
         except Exception as e:
             session.rollback()
-            print(f"✗ Error inserting news: {e} - models.py:183")
+            print(f"✗ Error inserting news: {e}")
             return False
         finally:
             session.close()
@@ -200,7 +200,7 @@ class Database:
             return False
         except Exception as e:
             session.rollback()
-            print(f"✗ Error updating content: {e} - models.py:203")
+            print(f"✗ Error updating content: {e}")
             return False
         finally:
             session.close()
@@ -267,7 +267,7 @@ class Database:
             return False
         except Exception as e:
             session.rollback()
-            print(f"✗ Error updating sentiment: {e} - models.py:270")
+            print(f"✗ Error updating sentiment: {e}")
             return False
         finally:
             session.close()
@@ -293,7 +293,7 @@ class Database:
             return False
         except Exception as e:
             session.rollback()
-            print(f"✗ Error updating stock_related: {e} - models.py:296")
+            print(f"✗ Error updating stock_related: {e}")
             return False
         finally:
             session.close()

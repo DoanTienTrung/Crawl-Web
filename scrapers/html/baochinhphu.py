@@ -27,7 +27,7 @@ class BaoChinhPhuScraper(NewsScraperBase):
         seen_urls = set()
 
         # Báo Chính phủ thường bọc link trong khối có class 'story' hoặc 'box-category'
-        links = soup.select('a[data-role="title"], .story__title a, .box-category-link-title')
+        links = soup.select('a[data-role="title"], .story__title a, .box-stream-link-title, .box-category-link-title')
         for link in links:
             href = link.get('href', '')
             if href and href.endswith('.htm'):
@@ -42,7 +42,7 @@ class BaoChinhPhuScraper(NewsScraperBase):
                 break
 
         for i, article_url in enumerate(article_urls, 1):
-            print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:60]}...")
+            print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:60]}...", flush=True)
             self.sleep()
             article_data = self._fetch_article_detail(article_url)
             if article_data:
@@ -97,4 +97,14 @@ class BaoChinhPhuScraper(NewsScraperBase):
         if len(content) < 50: return None
 
 
-        return (published_at, title, link, content, self.source, "NA", "NA", False, category)
+        return (
+            published_at,
+            title,
+            link, 
+            content, 
+            self.source, 
+            "NA", 
+            "NA", 
+            False, 
+            category
+            )

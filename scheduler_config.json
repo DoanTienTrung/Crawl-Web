@@ -8,7 +8,7 @@
   },
   "jobs": [
     {
-      "id": "scrape_all_news_hourly",
+      "id": "scrape_all_",
       "name": "Scrape tất cả nguồn tin mỗi giờ",
       "function": "scrape_all",
       "enabled": true,
@@ -16,7 +16,7 @@
         "type": "interval",
         "minutes": 30
       },
-      "description": "Chạy scrape_all() mỗi 1 giờ để thu thập tin từ tất cả nguồn"
+      "description": "Chạy scrape_all() để thu thập tin từ tất cả nguồn"
     },
     {
       "id": "scrape_cafef_30min",
@@ -27,7 +27,7 @@
         "type": "interval",
         "minutes": 30
       },
-      "description": "Scrape riêng CafeF (hiện tắt - bật bằng cách đổi enabled=true)"
+      "description": "Scrape riêng CafeF "
     },
     {
       "id": "scrape_vnexpress_morning",
@@ -63,6 +63,279 @@
         "minutes": 15
       },
       "description": "Scrape Dân trí RSS mỗi 15 phút"
+    },
+    {
+      "id": "scrape_cafeland_morning",
+      "name": "Scrape CafeLand buổi sáng",
+      "function": "scrape_cafeland",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_vneconomy_morning",
+      "name": "Scrape VnEconomy buổi sáng",
+      "function": "scrape_vneconomy",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_vov_morning",
+      "name": "Scrape VOV buổi sáng",
+      "function": "scrape_vov",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_vietnamnet_morning",
+      "name": "Scrape VietnamNet buổi sáng",
+      "function": "scrape_vietnamnet",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_thanhnien_morning",
+      "name": "Scrape Thanh Niên buổi sáng",
+      "function": "scrape_thanhnien",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_tuoitre_morning",
+      "name": "Scrape Tuổi Trẻ buổi sáng",
+      "function": "scrape_tuoitre",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_laodong_morning",
+      "name": "Scrape Lao Động buổi sáng",
+      "function": "scrape_laodong",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_nld_morning",
+      "name": "Scrape NLĐ buổi sáng",
+      "function": "scrape_nld",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_antt_morning",
+      "name": "Scrape An Ninh Thủ Đô buổi sáng",
+      "function": "scrape_antt",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_cna_morning",
+      "name": "Scrape CNA buổi sáng",
+      "function": "scrape_cna",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_qdnd_morning",
+      "name": "Scrape QĐND buổi sáng",
+      "function": "scrape_qdnd",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_kinhte_morning",
+      "name": "Scrape Kinh Tế buổi sáng",
+      "function": "scrape_kinhte",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_thoibaonganhang_morning",
+      "name": "Scrape Thời Báo Ngân Hàng buổi sáng",
+      "function": "scrape_thoibaonganhang",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_taichinhdoanhnghiep_morning",
+      "name": "Scrape Tài Chính Doanh Nghiệp buổi sáng",
+      "function": "scrape_taichinhdoanhnghiep",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_baochinhphu_morning",
+      "name": "Scrape Báo Chính Phủ buổi sáng",
+      "function": "scrape_baochinhphu",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_tinnhanhchungkhoan_morning",
+      "name": "Scrape Tin Nhanh Chứng Khoán buổi sáng",
+      "function": "scrape_tinnhanhchungkhoan",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_xaydungchinhsach_morning",
+      "name": "Scrape Xây Dựng Chính Sách buổi sáng",
+      "function": "scrape_xaydungchinhsach",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_vietnamfinance_morning",
+      "name": "Scrape Vietnam Finance buổi sáng",
+      "function": "scrape_vietnamfinance",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_coin68_morning",
+      "name": "Scrape Coin68 buổi sáng",
+      "function": "scrape_coin68",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_nguoiquansat_morning",
+      "name": "Scrape Người Quan Sát buổi sáng",
+      "function": "scrape_nguoiquansat",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
+    },
+    {
+      "id": "scrape_thoibaotaichinh_morning",
+      "name": "Scrape Thời Báo Tài Chính buổi sáng",
+      "function": "scrape_thoibaotaichinh",
+      "enabled": false,
+      "schedule": {
+        "type": "cron",
+        "hour": "8",
+        "minute": "0",
+        "day_of_week": "mon-fri"
+      },
+      "description": "Chạy lúc 8:00 sáng các ngày trong tuần"
     }
   ],
   "timezone": "Asia/Ho_Chi_Minh",

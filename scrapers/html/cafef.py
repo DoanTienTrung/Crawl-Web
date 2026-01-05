@@ -70,7 +70,7 @@ class CafeFScraper(NewsScraperBase):
 
             # Fetch article details
             for i, article_url in enumerate(article_urls, 1):
-                print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:60]}... - multi_source_scraper.py:993")
+                print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:60]}... - multi_source_scraper.py:993", flush=True)
                 self.sleep()
 
                 article_data = self._fetch_article_detail(article_url)

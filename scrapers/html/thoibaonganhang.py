@@ -43,7 +43,7 @@ class ThoiBaoNganHangScraper(NewsScraperBase):
         print(f"✓ Tìm thấy {len(article_urls)} bài viết tiềm năng.")
 
         for i, article_url in enumerate(article_urls, 1):
-            print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:60]}...")
+            print(f"[{i}/{len(article_urls)}] Fetching: {article_url[:60]}...", flush=True)
             self.sleep() # Không truyền tham số để tránh lỗi NewsScraperBase
             article_data = self._fetch_article_detail(article_url)
             if article_data:

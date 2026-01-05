@@ -1,59 +1,29 @@
-vnexpress: done
-vov: done
-cafef: done
-vietnamnet: done
-cafeland: done - còn các quảng cáo
-dantri: done
-thanhnien: done
-tuoitre: done
-vietstock: done (sử dụng Selenium)  
-nld: done
-laodong: done 
-antt: done (fixed URL conversion và selectors)
-channelnewsasia: done
-kinhtengoaithuong: done
-thoibaonganhang: done
-taichinhdoanhnghiep: done
-baochinhphu: done
-tinnhanhchungkhoan: done
-vneconomy: done
-nguoiquansat: done
-thoibaotaichinh: done
-coin68: done
-vietnamfinance: done
-xaydungchinhsach: done
-qdnd: done
+antt: ✅ done 
+baochinhphu: ✅ done
+cafef: ✅ done
+cafeland: ✅ done
+channelnewsasia: ✅ done
+coin68: ✅ done
+dantri: ✅ done
+kinhtengoaithuong: ✅ done
+laodong: ✅ done
+nguoiquansat: ✅ done
+nld: ✅ done
+qdnd: ✅ done
+taichinhdoanhnghiep: ✅ done
+thanhnien: ✅ done
+thoibaonganhang: ✅ done
+thoibaotaichinhvietnam: ✅ done
+tinnhanhchungkhoan: ✅ done
+tuoitre: ✅ done
+vietnamfinance: ✅ done
+vietnamnet: ✅ done
+vietstock: ✅ done
+vneconomy: ✅ done
+vnexpress: ✅ done
+vov: ✅ done
+xaydungchinhsach: ✅ done
 
-
-agromonitor: not yet
-
-Kiểm tra lại các trang báo:
-Refactor lại code:
-Đọc hiểu source code
-
-
-antt: done 
-baochinhphu
-cafef
-cafeland
-channelnewsasia
-coin68
-dantri
-kinhtengoaithuong
-laodong
-nguoiquansat
-nld
-qdnd
-taichinhdoanhnghiep
-thanhnien
-thoibaonganhang
-thoibaotaichinhvietnam
-tinnhanhchungkhoan
-tuoitre
-vietnamfinance
-vietnamnet
-vietstock
-vneconomy
-vnexpress
-vov
-xaydungchinhsach
+- Check list lai cac bai bao: ✅ done
+- Kiem tra lai va them id lap lich day du: ✅ done
+- Còn một số bài báo dạng video content bị rỗng: 

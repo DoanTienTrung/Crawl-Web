@@ -13,7 +13,7 @@ class VOVScraper(NewsScraperBase):
         super().__init__()
         self.source = "vov.vn"
         self.headers['Referer'] = 'https://vov.vn/'
-        self.delay = 3  
+        self.delay = 7  # Tăng delay từ 3 lên 5 giây để tránh rate limit  
 
     def fetch_news(self, max_pages: int = 1) -> List[Tuple]:
         """
@@ -109,9 +109,16 @@ class VOVScraper(NewsScraperBase):
                     if not title or not link:
                         continue
 
-                    # Fetch article detail
+                    # Fetch article detail with retry if content is empty
                     self.sleep()
                     article_data = self._fetch_article_detail(link, title, description)
+
+                    # Retry once if content is empty
+                    if article_data and not article_data[3]:  # article_data[3] is content
+                        print(f"⚠ Empty content, retrying: {title[:50]}...")
+                        self.sleep()
+                        article_data = self._fetch_article_detail(link, title, description)
+
                     if article_data:
                         all_articles.append(article_data)
 
@@ -132,6 +139,7 @@ class VOVScraper(NewsScraperBase):
         """Fetch chi tiết một bài báo"""
         html = self.fetch_html(link)
         if not html:
+            print(f"✗ Failed to fetch HTML for: {link}")
             return None
 
         soup = BeautifulSoup(html, 'html.parser')
@@ -157,14 +165,39 @@ class VOVScraper(NewsScraperBase):
                     published_at = parsed_ts
 
         # Extract content
-        content_el = soup.select_one('div.row.article-content div.col div.text-long')
-        content = description
+        content_parts = []
+
+        # 1. Lấy summary/lead từ div.article-summary
+        summary_el = soup.select_one('div.row.article-summary div.col-lg-8 > div')
+        if summary_el:
+            summary_text = summary_el.get_text(strip=True)
+            if summary_text:
+                content_parts.append(summary_text)
+
+        # 2. Lấy content từ div.article-content
+        # Thử nhiều selector khác nhau vì cấu trúc HTML có thể khác nhau
+        content_el = (
+            soup.select_one('div.row.article-content div.text-long') or
+            soup.select_one('div.article-content div.text-long') or
+            soup.select_one('div.text-long')
+        )
 
         if content_el:
+            # Thử lấy từ thẻ <p> trước (cho bài báo thường)
             paragraphs = content_el.select('p')
-            content_text = ' '.join([p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)])
-            if content_text:
-                content = content_text
+            p_text = ' '.join([p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)])
+
+            if p_text and p_text.strip():
+                content_parts.append(p_text)
+            else:
+                # Nếu không có <p>, lấy từ <figcaption> (cho bài multimedia/gallery)
+                figcaptions = content_el.select('figure figcaption')
+                fig_text = ' '.join([fig.get_text(strip=True) for fig in figcaptions if fig.get_text(strip=True)])
+                if fig_text:
+                    content_parts.append(fig_text)
+
+        # Kết hợp tất cả phần content
+        content = ' '.join(content_parts) if content_parts else description
 
         # Extract category
         category = "Tin tức"  # Giá trị mặc định

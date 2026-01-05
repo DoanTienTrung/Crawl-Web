@@ -42,7 +42,7 @@ class Coin68Scraper(NewsScraperBase):
 
         # 3. Lấy chi tiết từng bài
         for i, article_url in enumerate(article_urls, 1):
-            print(f"[{i}/{len(article_urls)}] Đang cào: {article_url}")
+            print(f"[{i}/{len(article_urls)}] Đang cào: {article_url}", flush=True)
             self.sleep()
             data = self._fetch_article_detail(article_url)
             if data:

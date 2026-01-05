@@ -91,7 +91,7 @@ def scrape_nguoiquansat(save_to_db: bool = True, export_csv: bool = True) -> lis
     print("="*60)
 
     scraper = NguoiQuanSatScraper()
-    articles = scraper.fetch_news(max_articles=10)
+    articles = scraper.fetch_news(max_articles=20)
 
     _save_and_export(articles, "nguoiquansat", save_to_db, export_csv)
     return articles
@@ -103,12 +103,11 @@ def scrape_thoibaotaichinh(save_to_db: bool = True, export_csv: bool = True) -> 
     print("="*60)
 
     scraper = ThoiBaoTaiChinhScraper()
-    articles = scraper.fetch_news(max_articles=10)
+    articles = scraper.fetch_news(max_articles=15)
 
     _save_and_export(articles, "thoibaotaichinh", save_to_db, export_csv)
 
     return articles
-
 
 def scrape_taichinhdoanhnghiep(save_to_db: bool = True, export_csv: bool = True) -> list:
     """Hàm điều phối quét tin từ Tài chính Doanh nghiệp (taichinhdoanhnghiep.net.vn)"""
@@ -307,7 +306,6 @@ def scrape_laodong(save_to_db: bool = True, export_csv: bool = True) -> list:
 
     return articles
 
-
 def scrape_nld(save_to_db: bool = True, export_csv: bool = True) -> list:
     """Scrape NLD (Người Lao Động)"""
     print("\n" + "="*60)
@@ -334,7 +332,6 @@ def scrape_baochinhphu(save_to_db: bool = True, export_csv: bool = True) -> list
         _save_and_export(articles, "baochinhphu", save_to_db, export_csv)
     return articles
 
-
 def scrape_tinnhanhchungkhoan(save_to_db: bool = True, export_csv: bool = True) -> list:
     """Scrape Tin nhanh chứng khoán"""
     print("\n" + "="*60)
@@ -342,11 +339,10 @@ def scrape_tinnhanhchungkhoan(save_to_db: bool = True, export_csv: bool = True) 
     print("="*60)
 
     scraper = TinNhanhChungKhoanScraper()
-    articles = scraper.fetch_news(max_articles=10)
+    articles = scraper.fetch_news(max_articles=15)
 
     _save_and_export(articles, "tinnhanhchungkhoan", save_to_db, export_csv)
     return articles
-
 
 def scrape_vietstock(save_to_db: bool = True, export_csv: bool = True) -> list:
     """Scrape VietStock"""
